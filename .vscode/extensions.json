@@ -1,7 +1,0 @@
-{
-  "recommendations": [
-    "tamasfe.even-better-toml",
-    "ms-python.python",
-    "ms-azuretools.vscode-docker"
-  ]
-}
