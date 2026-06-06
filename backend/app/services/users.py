@@ -17,7 +17,7 @@ DEFAULT_SETTINGS = {
     "default_model": None,
     "temperature": 0.7,
     "use_rag_default": True,
-    "use_web_default": False,
+    "use_web_default": True,
     "rag_top_k": 4,
     "web_top_k": 4,
     "web_chars_per_result": 2200,
@@ -33,7 +33,7 @@ DEFAULT_SETTINGS = {
     "sidebar_color": None,               # hex color for sidebar background; None = theme default
     "persona_extra": None,
     # Web search provider configuration (per-user)
-    "search_provider": "tavily",         # tavily | searxng | brave | duckduckgo
+    "search_provider": "searxng",         # tavily | searxng | brave | duckduckgo
     "tavily_api_key": None,              # encrypted at rest; falls back to env TAVILY_API_KEY
     "brave_api_key": None,               # encrypted at rest; falls back to env BRAVE_API_KEY
     "searxng_url": None,                 # falls back to env SEARXNG_URL

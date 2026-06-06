@@ -1878,10 +1878,12 @@ async function refreshModels() {
   sel.value = state.currentModel;
   _refreshThinkChip();
 }
+
 $('#model-select').addEventListener('change', e => {
   state.currentModel = e.target.value;
   _refreshThinkChip();
 });
+
 $('#pull-model').addEventListener('click', () => {
   if (!state.user.is_admin) { toast('Admin only', 'err'); return; }
   openPullDialog();

@@ -39,8 +39,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         h.setdefault("X-Frame-Options", "DENY")
         h.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
         h.setdefault("Permissions-Policy", "geolocation=(), microphone=(), camera=()")
-        if os.getenv("COOKIE_SECURE", "0") == "1":
-            h.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+        h.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
         # CSP only on HTML responses to avoid breaking inline-style consumers
         ctype = h.get("content-type", "")
         if ctype.startswith("text/html"):
