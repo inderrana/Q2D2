@@ -1,0 +1,11 @@
+# Dev override: live-reload static assets without rebuilding the image.
+# Usage:  ./run.sh -f docker-compose.yml -f docker-compose.dev.yml up -d
+# Or with the dev helper: COMPOSE_FILE=docker-compose.yml:docker-compose.dev.yml ./run.sh up -d
+#
+# Mounts backend/app/static into the running container, shadowing the copy
+# baked into the image. Edits to JS/CSS/HTML show up on browser refresh.
+# Do NOT use in production — the prod image is fully self-contained.
+services:
+  r2d2:
+    volumes:
+      - ./backend/app/static:/app/app/static:ro

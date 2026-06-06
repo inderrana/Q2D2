@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark light" />
+  <title>__BRAND_WINDOW_TITLE__</title>
+  <link rel="icon" href="__BRAND_FAVICON__" />
+  <link rel="stylesheet" href="/static/vendor/hljs-github-dark.min.css">
+  <script defer src="/static/vendor/marked.min.js"></script>
+  <script defer src="/static/vendor/purify.min.js"></script>
+  <script defer src="/static/vendor/hljs.min.js"></script>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ============= Sidebar (M3 Nav Drawer) ============= -->
+  <aside class="sidebar" id="sidebar">
+
+    <div class="brand">
+      <div class="brand-mark">__BRAND_SIDEBAR_MARK__</div>
+      <div class="brand-name">__BRAND_NAME__</div>
+      <div class="brand-grow"></div>
+      <button id="sidebar-collapse" class="icon-btn" aria-label="Collapse sidebar" title="Collapse">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 19l-7-7 7-7"/><path d="M20 19l-7-7 7-7"/></svg>
+      </button>
+    </div>
+
+    <div style="padding: var(--sp-3) 12px var(--sp-3);">
+      <button id="new-chat" class="btn btn-tonal" style="width:100%;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        New chat
+      </button>
+    </div>
+
+    <div class="search-field">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="chat-search" type="search" placeholder="Search" aria-label="Search chats" />
+    </div>
+
+    <div class="section-label">
+      <span class="grow">Chats</span>
+    </div>
+
+    <div class="sidebar-section scroll">
+      <nav id="chat-list" class="nav" aria-label="Chats"></nav>
+    </div>
+
+    <div class="section-label" style="border-top:1px solid var(--outline-variant); padding-top:var(--sp-4);">
+      <span class="grow">Knowledge</span>
+      <button id="add-folder" class="icon-btn sm" title="New folder" aria-label="New folder">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><path d="M12 11v6M9 14h6"/></svg>
+      </button>
+      <button id="add-url" class="icon-btn sm" title="Ingest URL" aria-label="Ingest URL">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      </button>
+      <button id="add-folder-upload" class="icon-btn sm" title="Upload folder" aria-label="Upload folder">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><path d="M12 17V9M8 13l4-4 4 4"/></svg>
+      </button>
+      <button id="add-file" class="icon-btn sm" title="Upload file" aria-label="Upload file">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6M9 15h6"/></svg>
+      </button>
+    </div>
+
+    <div id="doc-list" class="doc-tree" style="max-height: 260px; overflow-y:auto; padding: 0 var(--sp-2) var(--sp-2);"></div>
+
+    <!-- Account -->
+    <div class="account">
+      <button id="account-btn" class="account-btn" aria-haspopup="menu" aria-expanded="false">
+        <div id="user-avatar" class="avatar"><span id="user-avatar-initial">—</span></div>
+        <div class="info">
+          <div id="user-name" class="name">Loading…</div>
+          <div id="user-sub" class="sub">—</div>
+        </div>
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--on-surface-faint)"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div id="account-menu" class="menu hidden" role="menu">
+        <div class="menu-header">Account</div>
+        <button class="menu-item" data-action="settings" role="menuitem">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span class="grow">Settings</span>
+        </button>
+        <button class="menu-item" data-action="usage" role="menuitem">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>
+          <span class="grow">Usage & stats</span>
+        </button>
+        <div class="menu-divider"></div>
+        <div class="menu-header">Search provider</div>
+        <div id="provider-menu" role="group"></div>
+        <div class="menu-divider"></div>
+        <button class="menu-item danger" data-action="logout" role="menuitem">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+          Sign out
+        </button>
+      </div>
+    </div>
+  </aside>
+  <div id="sidebar-resizer" class="sidebar-resizer" role="separator" aria-orientation="vertical" aria-label="Resize sidebar" tabindex="0"></div>
+
+  <!-- ============= Main ============= -->
+  <main class="main">
+    <header class="app-bar">
+      <button id="sidebar-toggle" class="icon-btn" aria-label="Toggle sidebar" title="Toggle sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+      </button>
+      <select id="model-select" class="model-select" aria-label="Model"></select>
+      <button id="pull-model" class="icon-btn" title="Pull a model" aria-label="Pull a model">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
+      </button>
+      <div style="flex:1"></div>
+      <div id="status-pill" class="status-pill hidden"></div>
+      <button id="theme-toggle" class="theme-pill" type="button" aria-label="Toggle theme" title="Toggle theme">
+        <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <span id="theme-label">Dark</span>
+      </button>
+    </header>
+
+    <section class="messages" id="messages" aria-live="polite"></section>
+
+    <footer class="composer">
+      <div class="composer-inner">
+        <div class="composer-chips">
+          <label class="chip">
+            <input type="checkbox" id="toggle-rag" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            Documents
+          </label>
+          <label class="chip">
+            <input type="checkbox" id="toggle-web" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>
+            <span id="web-chip-label">Web</span>
+          </label>
+          <button type="button" class="chip" id="ref-chats" title="Reference other chats">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/></svg>
+            <span id="ref-chip-label">Chats</span>
+          </button>
+          <label class="chip hidden" id="think-chip" title="Let the model reason before answering (slower, often better)">
+            <input type="checkbox" id="toggle-think" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V18h6v-1.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z"/></svg>
+            Thinking
+          </label>
+          <div class="grow"></div>
+          <span id="counter" class="counter"></span>
+        </div>
+        <div id="chat-attachments" class="chat-attachments hidden"></div>
+        <div class="composer-field">
+          <button id="attach" class="icon-btn" title="Attach file" aria-label="Attach file">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+          </button>
+          <textarea id="input" rows="1" placeholder="__BRAND_COMPOSER_PLACEHOLDER__" aria-label="Message"></textarea>
+          <button id="send" class="fab" disabled aria-label="Send">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.6 22 12 3.4 3.4l-.1 7L17 12 3.3 13.6z"/></svg>
+          </button>
+          <button id="stop" class="fab hidden" aria-label="Stop" style="background:var(--surface-4); color:var(--on-surface); box-shadow:none;">
+            <svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+          </button>
+        </div>
+        <p class="footnote">__BRAND_DISCLAIMER__</p>
+      </div>
+    </footer>
+  </main>
+</div>
+
+<input type="file" id="file-input" class="hidden" multiple />
+<input type="file" id="folder-input" class="hidden" webkitdirectory directory multiple />
+
+<!-- Settings dialog -->
+<div id="modal" class="scrim hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="dialog">
+    <div class="dialog-header">
+      <h2 id="modal-title" class="dialog-title">Settings</h2>
+      <button id="modal-close" class="icon-btn" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="dialog-body">
+      <nav id="modal-tabs" class="dialog-sidebar" aria-label="Settings sections"></nav>
+      <div id="modal-body" class="dialog-content"></div>
+    </div>
+  </div>
+</div>
+
+<div id="toasts" class="toasts" aria-live="polite"></div>
+
+<!-- Move picker dialog -->
+<div id="move-picker" class="scrim hidden" role="dialog" aria-modal="true" aria-labelledby="mp-title">
+  <div class="dialog dialog-sm">
+    <div class="dialog-header">
+      <h2 id="mp-title" class="dialog-title">Move</h2>
+      <button id="mp-close" class="icon-btn" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div id="mp-body" class="dialog-body single"></div>
+    <div class="dialog-footer">
+      <button id="mp-cancel" class="btn">Cancel</button>
+      <button id="mp-confirm" class="btn btn-filled" disabled>Move</button>
+    </div>
+  </div>
+</div>
+
+<!-- Upload report dialog (shown after a batch upload with failures) -->
+<div id="upload-report" class="scrim hidden" role="dialog" aria-modal="true" aria-labelledby="ur-title">
+  <div class="dialog dialog-sm">
+    <div class="dialog-header">
+      <h2 id="ur-title" class="dialog-title">Upload report</h2>
+      <button id="ur-close" class="icon-btn" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div id="ur-body" class="dialog-body single"></div>
+    <div class="dialog-footer">
+      <button id="ur-ocr" class="btn btn-filled" hidden>OCR & retry</button>
+      <button id="ur-retry" class="btn" hidden>Retry fixable</button>
+      <button id="ur-ok" class="btn">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="upload-progress" class="upload-progress hidden" role="status" aria-live="polite">
+  <div class="head">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+    <span id="up-title" class="title">Uploading…</span>
+    <button id="up-cancel" class="cancel" type="button" aria-label="Cancel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="body">
+    <div id="up-file" class="file">—</div>
+    <div class="track"><div id="up-file-fill" class="fill"></div></div>
+    <div class="meta"><span id="up-count">0 / 0</span><span id="up-rate"></span></div>
+    <div class="track overall"><div id="up-overall-fill" class="fill"></div></div>
+  </div>
+</div>
+
+<script src="/static/app.js" type="module"></script>
+</body>
+</html>

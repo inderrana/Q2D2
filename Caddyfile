@@ -1,0 +1,22 @@
+{
+    auto_https disable_redirects
+}
+
+# --- LOCAL ACCESS ---
+http://r2d2.localhost {
+    redir https://r2d2.localhost{uri}
+}
+
+https://r2d2.localhost {
+    tls internal
+    encode zstd gzip
+    reverse_proxy r2d2:8088
+}
+
+# --- CLOUDFLARE TUNNEL ACCESS ---
+# Catch everything the tunnel sends to port 80, regardless of the Host header
+:80 {
+    log
+    encode zstd gzip
+    reverse_proxy r2d2:8088
+}

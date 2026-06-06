@@ -1,0 +1,18 @@
+# SearXNG botdetection + limiter config.
+# Limiter is backed by Valkey (see docker-compose.yml). Docker private subnets
+# bypass botdetection so r2d2 → searxng calls aren't rate-limited.
+
+[botdetection.ip_lists]
+pass_ip = [
+  "127.0.0.0/8",
+  "10.0.0.0/8",
+  "172.16.0.0/12",
+  "192.168.0.0/16",
+  "::1/128",
+  "fc00::/7",
+]
+block_ip = []
+
+[botdetection.ip_limit]
+filter_link_local = true
+link_token = false

@@ -1,0 +1,217 @@
+services:
+  q2d2:
+    build: ./backend
+    container_name: q2d2
+    restart: unless-stopped
+    # No host port — reached only via Caddy on https://q2d2.localhost.
+    # Expose to other containers on the compose network only requires caddy setup.
+    # expose:
+    #   - "8088"
+    # Uncomment the following to expose q2d2 directly on localhost:8088 (no Caddy, no TLS).
+    ports:
+      - "8088:8088"  
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    env_file:
+      - .env
+    environment:
+      # The externally-managed `ollama` container is attached to this compose
+      # network by run.sh after `up`, so DNS resolves `ollama` from q2d2.
+      # Override OLLAMA_URL in .env if Ollama lives elsewhere.
+      OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
+      OLLAMA_CONTAINER: ${OLLAMA_CONTAINER:-ollama}
+      # Small model used for rewriter / classifier / intent calls.
+      # Override to point at any installed Ollama tag (qwen3:1.7b-q4_K_M
+      # is a good default — fast, small VRAM footprint, decent reasoning).
+      UTILITY_MODEL: ${UTILITY_MODEL:-qwen3:1.7b-q4_K_M}
+      # Talk to the docker-socket-proxy sidecar over the compose network.
+      # The proxy exposes only the container endpoints we need (no docker
+      # socket bind-mount into q2d2, no host-root escalation).
+      DOCKER_API_URL: ${DOCKER_API_URL:-http://docker-proxy:2375}
+      TAVILY_API_KEY: ${TAVILY_API_KEY:-}
+      BRAVE_API_KEY: ${BRAVE_API_KEY:-}
+      JWT_SECRET: ${JWT_SECRET:-}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-}
+      COOKIE_SECURE: ${COOKIE_SECURE:-1}
+      SEARXNG_URL: ${SEARXNG_URL:-http://searxng:8080}
+      DATA_DIR: /data
+      BRANDING_FILE: /app/branding.toml
+      TZ: ${TZ:-UTC}
+    volumes:
+      - q2d2_data:/data
+      - q2d2_uploads:/uploads
+      - ./branding.toml:/app/branding.toml:ro
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8088/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    mem_limit: 4g
+    cpus: 2.0
+    # --forwarded-allow-ips restricts which peers we trust X-Forwarded-* from.
+    # Only the Caddy sidecar on the compose bridge should ever reach q2d2
+    # (no host port published), so trusting the private docker subnets is
+    # both correct and defensive — any direct connect from outside Docker
+    # would fall outside these ranges and have its XFF stripped.
+    command:
+      - uvicorn
+      - app.main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8088"
+      - --proxy-headers
+      - --forwarded-allow-ips=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+
+# Ollama container, running the LLMs. Exposed to q2d2 over the compose network;
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+# Uncomment the following to expose q2d2 via a Cloudflare Tunnel.              
+
+  # Cloudflare Tunnel
+  # tunnel:
+  #   image: cloudflare/cloudflared:latest
+  #   container_name: q2d2-tunnel
+  #   restart: unless-stopped
+  #   command:
+  #     - tunnel
+  #     - --no-autoupdate
+  #     - run
+  #     - --token
+  #     - ${CLOUDFLARE_API_TOKEN:-}
+  #   volumes:
+  #     - ./.cloudflared/config.yml:/etc/cloudflared/config.yml:ro
+
+  # Tiny haproxy-based proxy that exposes a filtered view of the Docker API
+  # over TCP so q2d2 can restart the Ollama container without mounting the
+  # docker socket (which would grant effective host root). Only the
+  # /containers endpoint is enabled, and we enable POST so /containers/X/restart
+  # works. Anyone with shell on q2d2 could still abuse this against any
+  # container on the host — keep the endpoint admin-only in the API.
+
+  # The official docker-socket-proxy image is based on alpine + haproxy
+  # and does exactly this, so we don't need to roll our own. We just run it as a sidecar
+  # in the same compose network and point q2d2 at it via
+  # DOCKER_API_URL=http://docker-proxy:2375. No docker socket bind-mount 
+  # into q2d2, no root escalation risk there. The proxy container itself is locked down
+  # to the minimum capabilities and memory limit to reduce risk if it were ever 
+  # compromised.
+  docker-proxy:
+    image: tecnativa/docker-socket-proxy:latest
+    container_name: q2d2-docker-proxy
+    restart: unless-stopped
+    environment:
+      CONTAINERS: "1"
+      POST: "1"
+    volumes:
+      - ${DOCKER_SOCK_HOST:-/var/run/docker.sock}:/var/run/docker.sock:ro
+      # - /run/user/1000/docker.sock:/var/run/docker.sock:ro
+      
+    # Only reachable from the compose network; no host port exposed.
+    expose:
+      - "2375"
+
+# Caddy sidecar to route from https://q2d2.localhost (or your custom domain) to q2d2.
+  # caddy:
+  #   image: caddy:2
+  #   container_name: q2d2-caddy
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - q2d2
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #     - "443:443/udp"
+  #   volumes:
+  #     - ./Caddyfile:/etc/caddy/Caddyfile:ro
+  #     - caddy_data:/data
+  #     - caddy_config:/config
+
+
+# SearXNG sidecar for search capabilities. Only q2d2 talks to it over the compose network.
+  searxng:
+    image: searxng/searxng:latest
+    container_name: q2d2-searxng
+    restart: unless-stopped
+    depends_on:
+      valkey:
+        condition: service_healthy
+    # No host port — only q2d2 talks to it over the compose network.
+    # Run as the searxng uid directly: skips the entrypoint's chown attempt
+    # against our read-only mounts (silences the harmless chown warning).
+    user: "977:977"
+    environment:
+      SEARXNG_SECRET: ${SEARXNG_SECRET:?set SEARXNG_SECRET in .env or via run.sh}
+      SEARXNG_BASE_URL: http://searxng:8080/
+      UWSGI_WORKERS: "2"
+      UWSGI_THREADS: "4"
+    volumes:
+      - ./searxng/settings.yml:/etc/searxng/settings.yml:ro
+      - ./searxng/limiter.toml:/etc/searxng/limiter.toml:ro
+      - searxng_data:/var/cache/searxng
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+    healthcheck:
+      # Send a loopback XFF so SearXNG's botdetection doesn't log a warning
+      # on every healthcheck. Real traffic from q2d2 is whitelisted via
+      # limiter.toml pass_ip (the docker private subnets).
+      test: ["CMD", "wget", "-q", "--header=X-Forwarded-For: 127.0.0.1", "-O-", "http://127.0.0.1:8080/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    mem_limit: 1g
+
+# Valkey sidecar for caching LLM responses and other data. Only q2d2 talks to it over the compose network.
+  valkey:
+    image: valkey/valkey:8-alpine
+    container_name: q2d2-valkey
+    restart: unless-stopped
+    # No host port; only searxng talks to it.
+    # Run as the valkey user directly: rootless-docker can't setpriv() inside
+    # the upstream entrypoint, so we bypass it.
+    user: "999:1000"
+    command: ["valkey-server", "--save", "", "--appendonly", "no", "--maxmemory", "64mb", "--maxmemory-policy", "allkeys-lru"]
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    volumes:
+      - valkey_cache:/data
+    cap_drop:
+      - ALL
+    mem_limit: 128m
+
+networks:
+  default:
+    name: q2d2_default
+
+volumes:
+  q2d2_data:
+  q2d2_uploads:
+  # caddy_data:
+  # caddy_config:
+  searxng_data:
+  ollama:
+  valkey_cache:

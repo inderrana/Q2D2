@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark light" />
+  <title>__BRAND_WINDOW_TITLE__ — Sign in</title>
+  <link rel="icon" href="__BRAND_FAVICON__" />
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body class="auth-page">
+  __BRAND_TOPNAV__
+  <svg class="auth-bg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="auth-line" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#4f46e5" stop-opacity="0.28"/>
+        <stop offset="100%" stop-color="#ec4899" stop-opacity="0.18"/>
+      </linearGradient>
+    </defs>
+    <!-- Two orbital arcs bleeding off the right edge, each with a single
+         planet sitting on the ring. Minimal, quiet, on-brand. -->
+    <g fill="none" stroke="url(#auth-line)" stroke-width="1">
+      <circle cx="1200" cy="400" r="220"/>
+      <circle cx="1200" cy="400" r="300"/>
+    </g>
+    <!-- Orbiting planets: each rotates around (1200,400). SVG viewBox
+         clipping hides them when they swing past x>1200, giving the
+         illusion of a full orbit completing offscreen. -->
+    <g class="orbit orbit-inner">
+      <circle cx="1200" cy="180" r="4" fill="#facc15"/>
+    </g>
+    <g class="orbit orbit-outer">
+      <circle cx="1200" cy="100" r="4" fill="#ec4899"/>
+    </g>
+  </svg>
+  <div class="auth-card">
+    <div class="auth-mark">__BRAND_AUTH_MARK__</div>
+    <h1 class="auth-title">__BRAND_LOGIN_TITLE__</h1>
+    <p class="auth-sub" id="subtitle">__BRAND_LOGIN_SUBTITLE__</p>
+
+    <div class="segmented" role="tablist">
+      <button class="seg active" data-tab="login" role="tab" aria-selected="true">Sign in</button>
+      <button class="seg" data-tab="register" role="tab" aria-selected="false">Create account</button>
+    </div>
+
+    <form id="form" class="auth-form" autocomplete="on">
+      <label>
+        <span class="lbl" id="username-label">Username</span>
+        <input class="field" name="username" type="text" required autocomplete="username" />
+      </label>
+      <label class="field-register hidden">
+        <span class="lbl">Display name (optional)</span>
+        <input class="field" name="display_name" type="text" />
+      </label>
+      <label class="field-register hidden">
+        <span class="lbl">Email (required)</span>
+        <input class="field" name="email" type="email" autocomplete="email" required />
+      </label>
+      <label>
+        <span class="lbl">Password</span>
+        <input class="field" name="password" type="password" required minlength="6" autocomplete="current-password" />
+      </label>
+
+      <div id="error" class="auth-error hidden"></div>
+
+      <button id="submit" type="submit" class="btn btn-filled" style="margin-top: 4px;">
+        <span id="btn-label">Sign in</span>
+      </button>
+    </form>
+
+  </div>
+  __BRAND_FOOTER__
+
+  <script type="module" src="/static/login.js"></script>
+</body>
+</html>

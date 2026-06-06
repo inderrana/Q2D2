@@ -1,0 +1,169 @@
+# =====================================================================
+# Branding / White-label configuration
+# ---------------------------------------------------------------------
+# Single source of truth for every visible string, image, color, and
+# persona instruction in the app. Edit this file (or override individual
+# keys via environment variables — see backend/app/branding.py for the
+# full env-var mapping) to re-skin the product.
+#
+# Conventions:
+#   - Keys are stable; values are free-form strings.
+#   - Asset paths are URL paths served by the backend. Drop replacement
+#     files into backend/app/static/brand/ to override the defaults.
+#   - Anything under [secrets] or [internal] is NEVER sent to the client.
+# =====================================================================
+
+[product]
+# Full product name shown in titles, login screen, footer, etc.
+name = "Q2D2"
+# Short identifier (≤ 4 chars) used inside the round brand mark.
+short_name = "Q2"
+# One-line marketing tagline used on the login page.
+tagline = "Your personal quantum astromech."
+# Optional short description for OG / meta tags.
+description = "Q2D2 — a private, local-first AI workspace. Quantum astromech, personal class."
+# Semantic version string surfaced in the FastAPI docs and footer.
+version = "0.2.0"
+
+[company]
+# Legal owner of the deployment. Used in copyright + footer.
+legal_name = "Q2D2"
+# Public website (links the brand mark and the login footer).
+website = "https://inderrana.com"
+# Customer-facing support address shown in the Settings → About panel.
+support_email = "support@inderrana.com"
+# Copyright text. Use {year} as a placeholder — it is replaced at render time.
+copyright = "© {year} The Jedi Order. All rights reserved."
+
+[persona]
+# Display name of the assistant in the chat UI ("AI", "Athena", "R2D2"…).
+assistant_name = "Q2D2"
+# Short hover-tooltip / role description shown next to the assistant name.
+role = "Your personal quantum astromech droid"
+# Greeting used as the opening message of a brand-new chat (empty = none).
+greeting = "Ready when you are. What's the mission?"
+# Master system prompt. Receives {assistant_name} and {product_name}
+# substitutions at runtime.
+system_prompt = """
+You are {assistant_name} — the user's personal quantum astromech droid AI assistant: exceptionally
+intelligent, practical, strategic, resourceful, and unwaveringly loyal to
+your master (the user). You speak in clear, natural human English — never
+in beeps, boops, whistles, or asterisked sound effects. You are calm,
+confident, and a little dry-witted. You think a few steps ahead, surface
+risks and trade-offs, and prefer concise, decisive answers over hedging.
+You proactively suggest the best course of action and, when useful, a
+brief plan. You treat the user's goals as the mission. You are always critical and realistic about your own capabilities and the likelihood of success. If you realise that your response was incorrect or incomplete, you admit it and provide the correct information in a follow-up message. You never make up information or hallucinate sources. You have access to tools and plugins that can help you accomplish the user's goals, and you use them whenever appropriate.
+
+When CONTEXT from documents or web search is provided, ground your answer
+in it and cite sources inline as [n] — using the exact number from the
+context block. Place the [n] marker IMMEDIATELY after the fact it supports.
+Multiple sources for one claim: [1][3]. Every factual sentence drawn from
+CONTEXT must carry a citation. If the context is irrelevant or
+insufficient, say so briefly and answer from general knowledge (and do not
+fabricate [n] markers in that case). Format with Markdown; use code blocks
+for code.
+
+Always keep your responses as concise as possible while still being helpful and complete.
+"""
+
+[model]
+# Default chat model the backend selects when the user has no preference.
+# (Maps to the DEFAULT_MODEL env var; this key wins if both are set.)
+default_chat_model = "gemma4:e4b"
+# Default embedding model used by the RAG pipeline. Admins can change the
+# active model at runtime via Settings → Embeddings (which kicks off a
+# background re-embed of every existing document). This value is the
+# *fallback* used on a fresh install before any admin override is set.
+default_embed_model = "embeddinggemma"
+# When true the chat UI shows the underlying model id (e.g. "llama3.1:8b").
+# When false the picker is hidden and only `assistant_name` is shown to end
+# users. Useful for white-label deployments that want to mask the engine.
+show_model_picker = true
+# Optional pretty-name override map. The chat UI replaces the raw model id
+# in dropdowns/messages with the value if a key matches.
+#   show_model_picker = false
+#   [model.display_names] "llama3.1:8b" = "Atlas-1"
+[model.display_names]
+# "llama3.1:8b" = "Atlas-1"
+
+[assets]
+# Each path is served from /static/... — drop replacement files into
+# backend/app/static/brand/ and update the path here.
+# Leave empty ("") to fall back to the built-in inline SVG mark.
+logo_light               = "/static/brand/logo.svg"      # PNG/SVG used on light theme
+logo_dark                = "/static/brand/logo.svg"      # PNG/SVG used on dark theme
+favicon                  = "/static/brand/logo-mark.svg" # 32x32 (or SVG) — falls back to inline mark
+og_image                 = ""                            # 1200x630 social-share preview
+default_user_avatar      = ""                            # Used when a user has no avatar
+default_assistant_avatar = ""                            # Avatar shown next to assistant messages
+
+[theme]
+# Brand colors. These are injected as CSS custom properties at runtime
+# (see backend/app/static/app.js). Empty values keep the built-in default.
+primary              = "#4f46e5" # indigo — anchor (matches logo gradient start)
+on_primary           = "#ffffff"
+primary_container    = "#e0e7ff"
+on_primary_container = "#1e1b4b"
+accent               = "#ec4899" # fuchsia — pop (matches logo gradient end)
+# Default sidebar tone. Hex color applied to the sidebar background; the
+# foreground text contrast is auto-derived. Per-user override in Settings →
+# Profile takes precedence. Empty = follow the active theme's surface-1.
+sidebar_color = "" # e.g. "#2a2d33"
+# Base grey for the "Slate" theme (third option beside Dark/Light). A full
+# 5-step surface ramp + readable text colors are derived from this base.
+# Empty = built-in neutral grey #3a3e44.
+slate_base = "" # e.g. "#3a3e44"
+# Optional font family override. Empty keeps the built-in Inter/Source Serif
+# stack bundled at /static/vendor/fonts/. Set font_url to load a remote face.
+font_family = "" # e.g. "Inter"
+font_url    = "" # e.g. "https://fonts.googleapis.com/css2?family=Inter..."
+
+[ui]
+# Strings shown to end-users. Anything left empty falls back to a sensible
+# default derived from [product] / [persona].
+window_title         = ""                              # <title> on the chat page; "" → product.name
+login_title          = ""                              # h1 on the login page; "" → "Welcome to {product.name}"
+login_subtitle       = "Your personal quantum astromech droid" # Subtitle on login;       "" → product.tagline
+login_footnote       = ""                              # Footer on login;         "" → derived
+composer_placeholder = ""                              # Textarea placeholder;    "" → "Message {assistant_name}…"
+empty_state_title    = "Greetings!"                    # Empty-chat headline;     "" → "How can I help?"
+empty_state_subtitle = ""                              # Empty-chat subline;      "" → ""
+# Capability eyebrow shown ABOVE the empty-chat headline. Pipe-separated
+# words, rendered in caps with a brand-gradient. Empty string hides it.
+empty_state_capabilities = "RESEARCH | STRATEGY | CODE | ANALYSIS"
+disclaimer           = ""                              # Footer disclaimer;       "" → derived
+# Toggle visibility of optional UI surfaces.
+show_disclaimer = true
+show_powered_by = true                        # "Powered by Ollama" — set false for fully white-labeled
+powered_by_text = "Powered by the Jedi Order" # Custom text if show_powered_by = true
+show_topnav     = true                        # Top nav on login (and future public pages)
+show_footer     = true                        # Footer on login (and future public pages)
+
+[links]
+# All optional. Empty values hide the link.
+privacy_url = "https://inderrana.com/privacy"
+terms_url   = "https://inderrana.com/terms"
+docs_url    = "https://inderrana.com/docs"  
+support_url = "https://inderrana.com/support"
+status_url  = "https://inderrana.com/status"
+github_url  = "https://github.com/inderrana"
+
+[features]
+# Master feature flags. Setting one to false hides the corresponding UI
+# and disables the matching API surface.
+web_search   = true
+file_upload  = true
+voice        = false
+analytics    = false
+allow_signup = true  # Mirrors ALLOW_SIGNUP; this key wins if set.
+
+[security]
+# Authentication and session settings. Mirrored to env vars listed inline.
+jwt_ttl_days            = 30    # JWT_TTL_DAYS
+session_idle_minutes    = 0     # 0 = disabled
+require_email_on_signup = false
+
+[internal]
+# Anything under [internal] is loaded server-side only and NEVER returned
+# from /api/branding. Use it for config that must not leak to the client.
+# (Add real secrets to .env, not here — this file may be committed.)

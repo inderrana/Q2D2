@@ -1,0 +1,51 @@
+# Minimal SearXNG settings tuned for R2D2's internal use.
+# The instance is only reachable from the compose network (no host port).
+use_default_settings:
+  engines:
+    remove:
+      - radio browser    # upstream sqlite-cache init bug; we don't need it
+      - ahmia            # tor-only; pointless from a non-tor container
+      - torch            # tor-only
+
+general:
+  instance_name: "R2D2 SearXNG"
+  privacypolicy_url: false
+  donation_url: false
+  contact_url: false
+  enable_metrics: false
+
+server:
+  # secret_key is substituted from $SEARXNG_SECRET by the official image's
+  # entrypoint (sed -i "s|ultrasecretkey|$SEARXNG_SECRET|g"). We mirror that
+  # pattern with our own var name.
+  secret_key: "${SEARXNG_SECRET}"
+  limiter: true                 # backed by Valkey; bypassed for docker subnets in limiter.toml
+  image_proxy: false
+  http_protocol_version: "1.1"
+  method: "GET"
+  default_http_headers:
+    X-Content-Type-Options: nosniff
+    X-Download-Options: noopen
+    X-Robots-Tag: noindex, nofollow
+    Referrer-Policy: no-referrer
+
+valkey:
+  url: valkey://valkey:6379/0
+
+search:
+  safe_search: 1
+  autocomplete: ""
+  default_lang: "en"
+  formats:
+    - html
+    - json                       # required by the R2D2 provider
+
+ui:
+  static_use_hash: true
+
+# Outgoing settings: keep it lean; respect upstream timeouts.
+outgoing:
+  request_timeout: 8.0
+  max_request_timeout: 12.0
+  pool_connections: 100
+  pool_maxsize: 20

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="R2D2">
+  <!-- Favicon: same monogram, slightly chunkier for 16/32px legibility. -->
+  <path fill="#1a1d22" fill-rule="evenodd" d="
+    M 14 10
+    L 40 10
+    Q 51 10 51 22
+    L 51 28
+    Q 51 39 40 39
+    L 33 39
+    L 51 54
+    L 38 54
+    L 26 41
+    L 26 54
+    L 14 54
+    Z
+    M 26 21
+    L 40 21
+    L 33 35
+    Z
+  "/>
+</svg>

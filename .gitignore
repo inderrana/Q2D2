@@ -1,0 +1,46 @@
+# --- Python -----------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# --- Virtualenvs ------------------------------------------------------
+.venv/
+venv/
+env/
+
+# --- Runtime / data ---------------------------------------------------
+data/
+.data/
+uploads/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.db
+*.db-wal
+*.db-shm
+chroma/
+logs/
+*.log
+
+# --- Secrets / env ----------------------------------------------------
+.env
+.env.*
+!.env.example
+
+# --- Editors / OS -----------------------------------------------------
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+*.iml
+*:Zone.Identifier
+# --- Stray local checkouts -------------------------------------------
+master/
+

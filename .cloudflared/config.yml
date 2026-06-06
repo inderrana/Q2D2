@@ -1,0 +1,4 @@
+ingress:
+  - hostname: q2d2.inderrana.com
+    service: http://r2d2:8088
+  - service: http_status:404

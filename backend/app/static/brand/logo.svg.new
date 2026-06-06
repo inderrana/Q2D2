@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="R2D2">
+  <!-- Monogram "R" with an inverted-triangle counter. Editorial slab
+       geometry; single ink; the triangular counter is the brand tell. -->
+  <path fill="#1a1d22" fill-rule="evenodd" d="
+    M 17 12
+    L 39 12
+    Q 49 12 49 22
+    L 49 28
+    Q 49 38 39 38
+    L 33 38
+    L 49 52
+    L 38 52
+    L 27 40
+    L 27 52
+    L 17 52
+    Z
+    M 27 22
+    L 39 22
+    L 33 34
+    Z
+  "/>
+</svg>
