@@ -3,7 +3,6 @@ const form = document.getElementById('form');
 const errorBox = document.getElementById('error');
 const btnLabel = document.getElementById('btn-label');
 const submitBtn = document.getElementById('submit');
-const usernameLabel = document.getElementById('username-label');
 let mode = 'login';
 
 function setMode(m) {
@@ -14,7 +13,6 @@ function setMode(m) {
     t.setAttribute('aria-selected', active ? 'true' : 'false');
   });
   document.querySelectorAll('.field-register').forEach(el => el.classList.toggle('hidden', m !== 'register'));
-  usernameLabel.textContent = m === 'login' ? 'Username or Email' : 'Username';
   btnLabel.textContent = m === 'login' ? 'Sign in' : 'Create account';
   form.password.autocomplete = m === 'login' ? 'current-password' : 'new-password';
   errorBox.classList.add('hidden');
@@ -44,12 +42,22 @@ form.addEventListener('submit', async (e) => {
   errorBox.classList.add('hidden');
   submitBtn.disabled = true;
   btnLabel.innerHTML = '<span class="spinner"></span>';
-  const data = Object.fromEntries(new FormData(form));
+  const formData = Object.fromEntries(new FormData(form));
   
-  // For login, rename "username" to "username_or_email" since it can be either
+  const data = {};
+  
   if (mode === 'login') {
-    data.username_or_email = data.username;
-    delete data.username;
+    // Login: send username_or_email and password
+    data.username_or_email = formData.username;
+    data.password = formData.password;
+  } else {
+    // Register: send username, password, email, and optional display_name
+    data.username = formData.username;
+    data.password = formData.password;
+    data.email = formData.email || '';
+    if (formData.display_name) {
+      data.display_name = formData.display_name;
+    }
   }
   
   try {

@@ -161,8 +161,7 @@ services:
       UWSGI_WORKERS: "2"
       UWSGI_THREADS: "4"
     volumes:
-      - ./searxng/settings.yml:/etc/searxng/settings.yml:ro
-      - ./searxng/limiter.toml:/etc/searxng/limiter.toml:ro
+      - ./searxng:/etc/searxng:ro
       - searxng_data:/var/cache/searxng
     cap_drop:
       - ALL
@@ -190,7 +189,7 @@ services:
     # Run as the valkey user directly: rootless-docker can't setpriv() inside
     # the upstream entrypoint, so we bypass it.
     user: "999:1000"
-    command: ["valkey-server", "--save", "", "--appendonly", "no", "--maxmemory", "64mb", "--maxmemory-policy", "allkeys-lru"]
+    command: ["valkey-server", "--dir", "/data", "--save", "", "--appendonly", "no", "--maxmemory", "64mb", "--maxmemory-policy", "allkeys-lru"]
     healthcheck:
       test: ["CMD", "valkey-cli", "ping"]
       interval: 10s
@@ -208,10 +207,10 @@ networks:
     name: q2d2_default
 
 volumes:
-  q2d2_data:
-  q2d2_uploads:
-  # caddy_data:
-  # caddy_config:
-  searxng_data:
-  ollama:
-  valkey_cache:
+  q2d2_data: {}
+  q2d2_uploads: {}
+  searxng_data: {}
+  ollama: {}
+  valkey_cache: {}
+  # caddy_data: {}
+  # caddy_config: {}

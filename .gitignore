@@ -44,4 +44,5 @@ Thumbs.db
 .vscode/
 # --- Stray local checkouts -------------------------------------------
 master/
+docker-compose_old.yml
 
